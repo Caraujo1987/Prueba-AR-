@@ -9,7 +9,8 @@
   </head>
   <body>
     <!-- <model-viewer> HTML element -->
-    <model-viewer src="gumball_carro_car (1).glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls tone-mapping="neutral" poster="poster.webp" shadow-intensity="1">
+    <model-viewer id="modelViewer" src="gumball_carro_car (1).glb" ar ar-modes="webxr scene-viewer quick-look" 
+      camera-controls tone-mapping="neutral" poster="poster.webp" shadow-intensity="1">
       <div class="progress-bar hide" slot="progress-bar">
           <div class="update-bar"></div>
       </div>
@@ -20,6 +21,35 @@
           <img src="ar_hand_prompt.png">
       </div>
     </model-viewer>  
+
+    <!-- Botón para tomar foto -->
+    <button id="captureButton">Tomar foto</button>
+
+    <script>
+      document.getElementById('captureButton').addEventListener('click', () => {
+          const modelViewer = document.getElementById('modelViewer');
+          
+          // Crear un canvas para capturar la imagen
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          const width = modelViewer.clientWidth;
+          const height = modelViewer.clientHeight;
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Dibujar la imagen en el canvas
+          context.drawImage(modelViewer, 0, 0, width, height);
+          
+          // Convertir el canvas a imagen
+          const image = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = image;
+          link.download = 'captura_modelo.png';
+          link.click();
+      });
+    </script>
+
     <script src="script.js"></script>
     <!-- Loads <model-viewer> for browsers: -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
