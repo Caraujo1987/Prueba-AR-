@@ -44,6 +44,8 @@
 
 <body>
 
+    <h3 id="coords">📍 Obteniendo ubicación...</h3>
+
     <!-- ModelViewer para ver el modelo en 3D -->
     <model-viewer id="modelViewer" 
         src="gumball_carro_car.glb" 
@@ -71,35 +73,20 @@
     <a-scene embedded arjs>
         <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
 
-        <!-- Modelo 3D posicionado en la ubicación GPS del usuario -->
+        <!-- Modelo 3D posicionado en la ubicación específica -->
         <a-entity 
             gltf-model="gumball_carro_car.glb" 
-            gps-new-entity-place="latitude: 0; longitude: 0" 
+            gps-new-entity-place="latitude: 3.34147; longitude: -76.53033" 
             scale="5 5 5" 
             id="ar-model">
         </a-entity>
     </a-scene>
 
-    <!-- Script para geolocalización y captura de pantalla -->
+    <!-- Script para mostrar coordenadas y capturar imagen -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Verificar si el navegador soporta geolocalización
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    let lat = position.coords.latitude;
-                    let lon = position.coords.longitude;
-
-                    // Posicionar el modelo 3D en la ubicación del usuario
-                    let model = document.getElementById("ar-model");
-                    model.setAttribute("gps-new-entity-place", `latitude: ${lat}; longitude: ${lon}`);
-
-                    console.log(`Modelo posicionado en: ${lat}, ${lon}`);
-                }, (error) => {
-                    console.error("Error obteniendo la ubicación: ", error);
-                });
-            } else {
-                console.error("Geolocalización no soportada en este navegador.");
-            }
+            // Mostrar coordenadas en la pantalla
+            document.getElementById("coords").innerText = "📍 Ubicación fija: Lat 3.34147, Lon -76.53033";
         });
 
         // Captura de pantalla del modelo 3D
