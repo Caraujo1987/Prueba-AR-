@@ -45,13 +45,13 @@
 
     <button id="captureButton">Tomar foto</button>
 
-    <!-- AR.js con geolocalización y cámara corregida -->
+    <!-- AR.js con la ubicación actualizada -->
     <a-scene embedded arjs>
         <a-camera gps-new-camera="gpsMinDistance: 1" rotation-reader camera-position></a-camera>
 
         <a-entity 
             gltf-model="gumball_carro_car.glb" 
-            gps-new-entity-place="latitude: 3.34147; longitude: -76.53033" 
+            gps-new-entity-place="latitude: 3.341502; longitude: -76.530313" 
             scale="3 3 3" 
             id="ar-model">
         </a-entity>
