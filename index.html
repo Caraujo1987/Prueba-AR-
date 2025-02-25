@@ -45,14 +45,14 @@
 
     <button id="captureButton">Tomar foto</button>
 
-    <!-- AR.js con geolocalización -->
+    <!-- AR.js con geolocalización y cámara corregida -->
     <a-scene embedded arjs>
-        <a-camera gps-new-camera="gpsMinDistance: 1"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 1" rotation-reader camera-position></a-camera>
 
         <a-entity 
             gltf-model="gumball_carro_car.glb" 
             gps-new-entity-place="latitude: 3.34147; longitude: -76.53033" 
-            scale="5 5 5" 
+            scale="3 3 3" 
             id="ar-model">
         </a-entity>
     </a-scene>
@@ -64,24 +64,30 @@
 
             if ("geolocation" in navigator) {
                 statusText.innerText = "📡 Obteniendo ubicación...";
-                
-                navigator.geolocation.watchPosition((position) => {
-                    let lat = position.coords.latitude;
-                    let lon = position.coords.longitude;
-                    
-                    coordsText.innerText = `📍 Latitud: ${lat.toFixed(6)}, Longitud: ${lon.toFixed(6)}`;
-                    statusText.innerText = "✅ Ubicación detectada en tiempo real";
-                    
-                    console.log(`Ubicación en tiempo real: Lat ${lat}, Lon ${lon}`);
-                }, (error) => {
-                    statusText.innerText = "❌ Error obteniendo ubicación.";
-                    coordsText.innerText = "⚠️ No se pudo obtener la ubicación.";
-                    console.error("Error de GPS:", error);
-                }, {
-                    enableHighAccuracy: true, // Mejor precisión
-                    maximumAge: 0, // No usar caché
-                    timeout: 5000 // Espera 5 segundos máximo
-                });
+
+                function actualizarUbicacion() {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        let lat = position.coords.latitude;
+                        let lon = position.coords.longitude;
+                        
+                        coordsText.innerText = `📍 Latitud: ${lat.toFixed(6)}, Longitud: ${lon.toFixed(6)}`;
+                        statusText.innerText = "✅ Ubicación detectada";
+
+                        console.log(`Ubicación actualizada: Lat ${lat}, Lon ${lon}`);
+                    }, (error) => {
+                        statusText.innerText = "❌ Error obteniendo ubicación.";
+                        coordsText.innerText = "⚠️ No se pudo obtener la ubicación.";
+                        console.error("Error de GPS:", error);
+                    }, {
+                        enableHighAccuracy: true, 
+                        maximumAge: 5000, 
+                        timeout: 5000
+                    });
+                }
+
+                // Actualizar cada 3 segundos para evitar que desaparezca
+                setInterval(actualizarUbicacion, 3000);
+                actualizarUbicacion();
 
             } else {
                 statusText.innerText = "⚠️ Geolocalización no soportada en este navegador.";
