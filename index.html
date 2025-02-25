@@ -1,57 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>&lt;model-viewer&gt; template</title>
+<head>
+    <title>AR con Geolocalización</title>
     <meta charset="utf-8">
-    <meta name="description" content="&lt;model-viewer&gt; template">
+    <meta name="description" content="Modelo 3D con geolocalización">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link type="text/css" href="./styles.css" rel="stylesheet"/>
-  </head>
-  <body>
-    <!-- <model-viewer> HTML element -->
-    <model-viewer id="modelViewer" src="gumball_carro_car (1).glb" ar ar-modes="webxr scene-viewer quick-look" 
-      camera-controls tone-mapping="neutral" poster="poster.webp" shadow-intensity="1">
-      <div class="progress-bar hide" slot="progress-bar">
-          <div class="update-bar"></div>
-      </div>
-      <button slot="ar-button" id="ar-button">
-          View in your space
-      </button>
-      <div id="ar-prompt">
-          <img src="ar_hand_prompt.png">
-      </div>
-    </model-viewer>  
+    
+    <!-- Estilos -->
+    <style>
+        body { margin: 0; overflow: hidden; text-align: center; }
+        #ar-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #captureButton {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- Scripts necesarios -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+</head>
+
+<body>
+
+    <!-- ModelViewer para ver el modelo en 3D -->
+    <model-viewer id="modelViewer" 
+        src="gumball_carro_car.glb" 
+        ar ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        tone-mapping="neutral" 
+        poster="poster.webp" 
+        shadow-intensity="1">
+        
+        <div class="progress-bar hide" slot="progress-bar">
+            <div class="update-bar"></div>
+        </div>
+        
+        <button slot="ar-button" id="ar-button">Ver en tu espacio</button>
+        
+        <div id="ar-prompt">
+            <img src="ar_hand_prompt.png">
+        </div>
+    </model-viewer>
 
     <!-- Botón para tomar foto -->
     <button id="captureButton">Tomar foto</button>
 
+    <!-- Escena de AR.js con geolocalización -->
+    <a-scene embedded arjs>
+        <a-camera gps-new-camera="gpsMinDistance: 5"></a-camera>
+
+        <!-- Modelo 3D posicionado en la ubicación GPS del usuario -->
+        <a-entity 
+            gltf-model="gumball_carro_car.glb" 
+            gps-new-entity-place="latitude: 0; longitude: 0" 
+            scale="5 5 5" 
+            id="ar-model">
+        </a-entity>
+    </a-scene>
+
+    <!-- Script para geolocalización y captura de pantalla -->
     <script>
-      document.getElementById('captureButton').addEventListener('click', () => {
-          const modelViewer = document.getElementById('modelViewer');
-          
-          // Crear un canvas para capturar la imagen
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const width = modelViewer.clientWidth;
-          const height = modelViewer.clientHeight;
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Dibujar la imagen en el canvas
-          context.drawImage(modelViewer, 0, 0, width, height);
-          
-          // Convertir el canvas a imagen
-          const image = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = image;
-          link.download = 'captura_modelo.png';
-          link.click();
-      });
+        document.addEventListener("DOMContentLoaded", () => {
+            // Verificar si el navegador soporta geolocalización
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+
+                    // Posicionar el modelo 3D en la ubicación del usuario
+                    let model = document.getElementById("ar-model");
+                    model.setAttribute("gps-new-entity-place", `latitude: ${lat}; longitude: ${lon}`);
+
+                    console.log(`Modelo posicionado en: ${lat}, ${lon}`);
+                }, (error) => {
+                    console.error("Error obteniendo la ubicación: ", error);
+                });
+            } else {
+                console.error("Geolocalización no soportada en este navegador.");
+            }
+        });
+
+        // Captura de pantalla del modelo 3D
+        document.getElementById('captureButton').addEventListener('click', () => {
+            const modelViewer = document.getElementById('modelViewer');
+
+            // Crear un canvas para capturar la imagen
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const width = modelViewer.clientWidth;
+            const height = modelViewer.clientHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Dibujar la imagen en el canvas
+            context.drawImage(modelViewer, 0, 0, width, height);
+
+            // Convertir el canvas a imagen descargable
+            const image = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'captura_modelo.png';
+            link.click();
+        });
     </script>
 
-    <script src="script.js"></script>
-    <!-- Loads <model-viewer> for browsers: -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-  </body>
+</body>
 </html>
